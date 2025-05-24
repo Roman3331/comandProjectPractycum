@@ -8,5 +8,8 @@ contextBridge.exposeInMainWorld('api', {
   hideMessage: (options) => ipcRenderer.invoke('hide-message', options),
   extractMessage: () => ipcRenderer.invoke('extract-message'),
   getUserData: () => ipcRenderer.invoke('get-user-data'),
-  showAbout: () => ipcRenderer.invoke('show-about')
+  showInstructions: () => ipcRenderer.invoke('show-instructions'),
+  showAboutProgram: () => ipcRenderer.invoke('show-about-program'),
+  showAuthors: () => ipcRenderer.invoke('show-authors'),
+  saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings)
 });
