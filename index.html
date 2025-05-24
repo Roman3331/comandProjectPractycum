@@ -1,108 +1,88 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <meta charset="UTF-8">
   <title>BMP Editor</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <!-- <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .section {
-      margin-bottom: 20px;
-      padding: 15px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      margin: 5px;
-      padding: 8px 15px;
-    }
-    select, input {
-      margin: 5px;
-      padding: 5px;
-    }
-    .hidden {
-      display: none;
-    }
-  </style> -->
 </head>
-
 <body class="bg-[#05020b] text-white">
   <div class="w-full flex flex-col items-center h-screen justify-center">
     <div id="loginSection" class="flex flex-col items-center p-6 gap-3 rounded-xl bg-[#202531] shadow-md">
       <h2 class="text-2xl font-bold">Login</h2>
       <input id="username" type="text" placeholder="Username"
         class="w-full px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-
       <input id="password" type="password" placeholder="Password"
         class="w-full px-4 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-
       <button class="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-xl w-full text-white cursor-pointer" onclick="login()">Login</button>
     </div>
 
-      <div id="mainSection" class="hidden flex-col p-6 max-w-2xl w-full bg-[#202531] rounded-xl shadow-md space-y-6">
-        
-        <!-- Top buttons -->
-        <div class="flex justify-end space-x-4">
-          <button onclick="logout()" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800">Logout</button>
-          <button onclick="showAbout()" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">About</button>
-        </div>
-    
-        <!-- File operations -->
-        <div>
-          <h2 class="text-xl font-semibold  mb-2">File Operations</h2>
-          <button onclick="selectFile()" class="px-4 py-2 bg-blue-800 text-white rounded hover:bg-blue-900">Select BMP File</button>
-          <p class="mt-2 ">Current file: <span id="currentFile" class="font-medium">None</span></p>
-        </div>
-    
-        <!-- Create BMP -->
-        <div>
-          <h2 class="text-xl font-semibold  mb-2">Create New BMP</h2>
-          <div class="flex space-x-4 mb-2">
-            <select id="mode" class="flex-1 px-4 py-2 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#37404F] ">
-              <option value="gradient">Gradient</option>
-              <option value="waves">Waves</option>
-              <option value="noise">Noise</option>
-            </select>
-            <select id="colorScheme" class="flex-1 px-4 py-2 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#37404F] ">
-              <option value="rgb">RGB</option>
-              <option value="grayscale">Grayscale</option>
-              <option value="inverted">Inverted</option>
-            </select>
-          </div>
-          <button onclick="createBMP()" class="px-4 py-2 bg-green-800 text-white rounded hover:bg-green-900">Create BMP</button>
-        </div>
-    
-        <!-- Message operations -->
-        <div>
-          <h2 class="text-xl font-semibold  mb-2">Message Operations</h2>
-          <input id="message" type="text" placeholder="Message to hide" class="w-full px-4 py-2 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#37404F]  mb-2">
-          <div class="flex space-x-4">
-            <button onclick="hideMessage()" class="px-4 py-2 bg-indigo-800 text-white rounded hover:bg-indigo-900">Hide Message</button>
-            <button onclick="extractMessage()" class="px-4 py-2 bg-purple-800 text-white rounded hover:bg-purple-900">Extract Message</button>
-          </div>
-        </div>
-    
-        <!-- Recent operations -->
-        <div>
-          <h2 class="text-xl font-semibold mb-2">Recent Operations</h2>
-          <p class="">Recent Files: <span id="recentFiles" class="font-medium"></span></p>
-          <p class="">Recent Modes: <span id="recentModes" class="font-medium"></span></p>
-          <p class="">Sent Messages: <span id="sentMessages" class="font-medium"></span></p>
-          <p class="">Received Messages: <span id="receivedMessages" class="font-medium"></span></p>
-        </div>
-        
+    <div id="mainSection" class="hidden flex-col mt-[24rem] p-6 max-w-2xl w-full bg-[#202531] rounded-xl shadow-md space-y-6">
+      <!-- Top buttons -->
+      <div class="flex justify-center space-x-4">
+        <button onclick="logout()" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800">Logout</button>
+        <button onclick="showInstructions()" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Інструкція користувача</button>
+        <button onclick="showAboutProgram()" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Про програму</button>
+        <button onclick="showAuthors()" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Про авторів</button>
       </div>
 
-    
-    
+      <!-- File operations -->
+      <div>
+        <h2 class="text-xl font-semibold mb-2">File Operations</h2>
+        <button onclick="selectFile()" class="px-4 py-2 bg-blue-800 text-white rounded hover:bg-blue-900">Select BMP File</button>
+        <p class="mt-2">Current file: <span id="currentFile" class="font-medium">None</span></p>
+      </div>
+
+      <!-- Create BMP -->
+      <div>
+        <h2 class="text-xl font-semibold mb-2">Create New BMP</h2>
+        <div class="flex space-x-4 mb-2">
+          <select id="mode" class="flex-1 px-4 py-2 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#37404F]">
+            <option value="gradient">Gradient</option>
+            <option value="waves">Waves</option>
+            <option value="noise">Noise</option>
+            <option value="spiral">Spiral</option>
+            <option value="stripes">Stripes</option>
+            <option value="mosaic">Mosaic</option>
+          </select>
+          <select id="colorScheme" class="flex-1 px-4 py-2 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#37404F]">
+            <option value="rgb">RGB</option>
+            <option value="grayscale">Grayscale</option>
+            <option value="inverted">Inverted</option>
+          </select>
+        </div>
+        <button onclick="createBMP()" class="px-4 py-2 bg-green-800 text-white rounded hover:bg-green-900">Create BMP</button>
+      </div>
+
+      <!-- Image Preview -->
+      <div>
+        <h2 class="text-xl font-semibold mb-2">Image Preview</h2>
+        <div class="w-full h-[300px] p-2 border-2 border-white rounded-md flex items-center justify-center bg-[#37404F]">
+          <img id="bmpPreview" class="w-full h-full" src="" alt="BMP Preview" style="display: none;" />
+        </div>
+      </div>
+
+      <!-- Message operations -->
+      <div>
+        <h2 class="text-xl font-semibold mb-2">Message Operations</h2>
+        <input id="message" type="text" placeholder="Message to hide" class="w-full px-4 py-2 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#37404F] mb-2">
+        <div class="flex space-x-4">
+          <button onclick="hideMessage()" class="px-4 py-2 bg-indigo-800 text-white rounded hover:bg-indigo-900">Hide Message</button>
+          <button onclick="extractMessage()" class="px-4 py-2 bg-purple-800 text-white rounded hover:bg-purple-900">Extract Message</button>
+        </div>
+      </div>
+
+      <!-- Recent operations -->
+      <div>
+        <h2 class="text-xl font-semibold mb-2">Recent Operations</h2>
+        <p>Recent Files: <span id="recentFiles" class="font-medium"></span></p>
+        <div class="flex space-x-2 mt-2">
+          <span>Recent Modes:</span>
+          <div id="recentModes" class="flex space-x-2"></div>
+        </div>
+        <p>Sent Messages: <span id="sentMessages" class="font-medium"></span></p>
+        <p>Received Messages: <span id="receivedMessages" class="font-medium"></span></p>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -127,17 +107,26 @@
     }
 
     async function logout() {
+      // Зберігаємо поточні режими перед logout
+      const mode = document.getElementById('mode').value;
+      const colorScheme = document.getElementById('colorScheme').value;
+      await window.api.saveSettings({ mode, colorScheme });
+
       await window.api.logout();
       document.getElementById('loginSection').classList.remove('hidden');
       document.getElementById('loginSection').classList.add('flex');
       document.getElementById('mainSection').classList.remove('flex');
       document.getElementById('mainSection').classList.add('hidden');
+      document.getElementById('bmpPreview').src = '';
+      document.getElementById('bmpPreview').style.display = 'none';
     }
 
     async function selectFile() {
-      const filePath = await window.api.selectFile();
-      if (filePath) {
-        document.getElementById('currentFile').textContent = filePath;
+      const result = await window.api.selectFile();
+      if (result && result.filePath) {
+        document.getElementById('currentFile').textContent = result.filePath;
+        document.getElementById('bmpPreview').src = result.image;
+        document.getElementById('bmpPreview').style.display = 'block';
         updateRecentData();
       }
     }
@@ -147,6 +136,10 @@
       const colorScheme = document.getElementById('colorScheme').value;
       const result = await window.api.createBMP({ mode, colorScheme });
       alert(result.success ? 'BMP created successfully' : 'Error: ' + result.message);
+      if (result.success && result.image) {
+        document.getElementById('bmpPreview').src = result.image;
+        document.getElementById('bmpPreview').style.display = 'block';
+      }
       updateRecentData();
     }
 
@@ -154,34 +147,71 @@
       const message = document.getElementById('message').value;
       const result = await window.api.hideMessage({ message });
       alert(result.success ? 'Message hidden successfully' : 'Error: ' + result.message);
+      if (result.success && result.image) {
+        document.getElementById('bmpPreview').src = result.image;
+        document.getElementById('bmpPreview').style.display = 'block';
+      }
       updateRecentData();
     }
 
     async function extractMessage() {
       const result = await window.api.extractMessage();
       if (result.success) {
+        console.log('Extracted message:', result.message);
         alert('Extracted message: ' + result.message);
+        if (result.image) {
+          document.getElementById('bmpPreview').src = result.image;
+          document.getElementById('bmpPreview').style.display = 'block';
+        }
         updateRecentData();
       } else {
+        console.error('Error:', result.message);
         alert('Error extracting message');
       }
     }
 
-    async function showAbout() {
-      const info = await window.api.showAbout();
-      alert(`${info.about}\n\nAuthors: ${info.authors}\n\nInstructions: ${info.instructions}`);
+    async function showInstructions() {
+      const info = await window.api.showInstructions();
+      alert(info.instructions);
+    }
+
+    async function showAboutProgram() {
+      const info = await window.api.showAboutProgram();
+      alert(info.about);
+    }
+
+    async function showAuthors() {
+      const info = await window.api.showAuthors();
+      alert(info.authors);
     }
 
     async function updateRecentData() {
       const data = await window.api.getUserData();
       if (data) {
         document.getElementById('recentFiles').textContent = data.recentFiles.join(', ');
-        document.getElementById('recentModes').textContent = data.recentModes.map(m => `${m.mode}/${m.colorScheme}`).join(', ');
+        
+        // Clear existing buttons
+        const recentModesContainer = document.getElementById('recentModes');
+        recentModesContainer.innerHTML = '';
+        
+        // Create buttons for recent modes
+        data.recentModes.forEach(({ mode, colorScheme }, index) => {
+          const button = document.createElement('button');
+          button.textContent = `${mode}/${colorScheme}`;
+          button.className = 'px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700';
+          button.onclick = () => selectRecentMode(mode, colorScheme);
+          recentModesContainer.appendChild(button);
+        });
+
         document.getElementById('sentMessages').textContent = data.sentMessages.join(', ');
         document.getElementById('receivedMessages').textContent = data.receivedMessages.join(', ');
       }
     }
+
+    function selectRecentMode(mode, colorScheme) {
+      document.getElementById('mode').value = mode;
+      document.getElementById('colorScheme').value = colorScheme;
+    }
   </script>
 </body>
-
 </html>
