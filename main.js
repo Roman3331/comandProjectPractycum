@@ -66,6 +66,7 @@ ipcMain.handle('login', async (event, { username, password }) => {
 
 ipcMain.handle('logout', async () => {
   currentUser = null;
+  currentFilePath = null;
   return { success: true };
 });
 
@@ -86,7 +87,9 @@ ipcMain.handle('select-file', async () => {
         saveUserData();
       }
     }
-    return currentFilePath;
+    const bmpData = fs.readFileSync(currentFilePath);
+    const base64Image = bmpData.toString('base64');
+    return { filePath: currentFilePath, image: `data:image/bmp;base64,${base64Image}` };
   }
   return null;
 });
@@ -106,7 +109,6 @@ ipcMain.handle('create-bmp', async (event, { mode, colorScheme }) => {
     for (let x = 0; x < width; x++) {
       let r, g, b;
       
-      // Modes for bitmap generation
       switch (mode) {
         case 'gradient':
           r = (x / width) * 255;
@@ -123,12 +125,35 @@ ipcMain.handle('create-bmp', async (event, { mode, colorScheme }) => {
           g = Math.random() * 255;
           b = Math.random() * 255;
           break;
+        case 'spiral':
+          const centerX = width / 2;
+          const centerY = height / 2;
+          const distance = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+          const angle = Math.atan2(y - centerY, x - centerX);
+          r = (Math.sin(distance / 20 + angle) * 127 + 128);
+          g = (Math.cos(distance / 20 + angle) * 127 + 128);
+          b = (Math.sin(distance / 20 - angle) * 127 + 128);
+          break;
+        case 'stripes':
+          const stripeWidth = 20;
+          const stripeValue = Math.floor(y / stripeWidth) % 2;
+          r = stripeValue * 255;
+          g = (1 - stripeValue) * 255;
+          b = (Math.floor(y / stripeWidth) % 3 === 2) ? 255 : 0;
+          break;
+        case 'mosaic':
+          const blockSize = 20;
+          const blockX = Math.floor(x / blockSize);
+          const blockY = Math.floor(y / blockSize);
+          const seed = (blockX + blockY * 1000) * 12345;
+          r = (Math.sin(seed) * 127 + 128);
+          g = (Math.cos(seed + 1) * 127 + 128);
+          b = (Math.sin(seed + 2) * 127 + 128);
+          break;
       }
 
-      // Color schemes
       switch (colorScheme) {
         case 'rgb':
-          // Keep as is
           break;
         case 'grayscale':
           const avg = (r + g + b) / 3;
@@ -163,7 +188,8 @@ ipcMain.handle('create-bmp', async (event, { mode, colorScheme }) => {
       saveUserData();
     }
     
-    return { success: true };
+    const base64Image = newBmp.toString('base64');
+    return { success: true, image: `data:image/bmp;base64,${base64Image}` };
   }
   return { success: false };
 });
@@ -173,7 +199,7 @@ ipcMain.handle('hide-message', async (event, { message }) => {
 
   const bmpData = fs.readFileSync(currentFilePath);
   const newBmp = Buffer.from(bmpData);
-  const messageBytes = Buffer.from(message, 'utf8');
+  const messageBytes = Buffer.from(message + '\0', 'utf8'); // Додаємо нульовий термінатор
   
   let bitIndex = 0;
   for (let i = 0; i < messageBytes.length && bitIndex < (bmpData.length - 54) * 8; i++) {
@@ -200,7 +226,8 @@ ipcMain.handle('hide-message', async (event, { message }) => {
       saveUserData();
     }
     
-    return { success: true };
+    const base64Image = newBmp.toString('base64');
+    return { success: true, image: `data:image/bmp;base64,${base64Image}` };
   }
   return { success: false };
 });
@@ -216,8 +243,9 @@ ipcMain.handle('extract-message', async () => {
     let messageBytes = [];
     let currentByte = 0;
     let bitCount = 0;
+    const maxMessageLength = 1000; // Limit to prevent infinite loops
 
-    for (let i = 54; i < bmpData.length && messageBytes.length < 1000; i++) {
+    for (let i = 54; i < bmpData.length && messageBytes.length < maxMessageLength; i++) {
       currentByte = (currentByte << 1) | (bmpData[i] & 1);
       bitCount++;
       
@@ -229,19 +257,36 @@ ipcMain.handle('extract-message', async () => {
       }
     }
 
-    const message = Buffer.from(messageBytes).toString('utf8');
-    
-    if (currentUser) {
-      userData[currentUser].receivedMessages.unshift(message);
-      if (userData[currentUser].receivedMessages.length > 3) {
-        userData[currentUser].receivedMessages.pop();
+    try {
+      // If no null terminator is found, return a warning instead of failing
+      if (messageBytes.length === 0 || messageBytes[messageBytes.length - 1] !== 0) {
+        return { success: false, message: 'No valid message found or message lacks null terminator' };
       }
-      saveUserData();
+
+      // Remove null terminator and decode
+      const validBytes = messageBytes.slice(0, -1);
+      const message = Buffer.from(validBytes).toString('utf8');
+
+      // Validate UTF-8
+      if (!message || /[\ufffd]/.test(message)) {
+        return { success: false, message: 'Invalid UTF-8 message detected' };
+      }
+
+      if (currentUser) {
+        userData[currentUser].receivedMessages.unshift(message);
+        if (userData[currentUser].receivedMessages.length > 3) {
+          userData[currentUser].receivedMessages.pop();
+        }
+        saveUserData();
+      }
+      
+      const base64Image = bmpData.toString('base64');
+      return { success: true, message, image: `data:image/bmp;base64,${base64Image}` };
+    } catch (error) {
+      return { success: false, message: `Error decoding message: ${error.message}` };
     }
-    
-    return { success: true, message };
   }
-  return { success: false };
+  return { success: false, message: 'No file selected' };
 });
 
 ipcMain.handle('get-user-data', async () => {
@@ -256,10 +301,20 @@ ipcMain.handle('get-user-data', async () => {
   return null;
 });
 
-ipcMain.handle('show-about', async () => {
+ipcMain.handle('show-instructions', async () => {
   return {
-    about: 'BMP Editor Application\nVersion 1.0.0',
-    authors: 'Developed by xAI Team',
-    instructions: '1. Login to access all features\n2. Select BMP file to work with\n3. Choose generation mode and color scheme\n4. Create new BMP or hide/extract messages\n5. Save results using system dialogs'
+    instructions: '1. Login to access all features\n2. Select BMP file to work with\n3. Choose generation mode and color scheme\n4. Create new BMP or hide/extract messages\n5. Save results using system dialogs\n6. View the processed image in the preview section'
+  };
+});
+
+ipcMain.handle('show-about-program', async () => {
+  return {
+    about: 'BMP Editor Application\nVersion 1.0.0\nSupports BMP image creation, steganography, and image preview'
+  };
+});
+
+ipcMain.handle('show-authors', async () => {
+  return {
+    authors: 'Developed by xAI Team'
   };
 });
